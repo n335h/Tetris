@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { createStage } from '../gameHelpers';
+import { checkCollision } from '../gameHelpers';
 
 //styled components
 import {
@@ -22,11 +23,14 @@ const Tetris = () => {
   const [dropTime, setDropTime] = useState(null);
   const [gameOver, setGameOver] = useState(false);
 
-  const [player, updatePlayerPos, resetPlayer] = usePlayer();
+  const [player, updatePlayerPos, resetPlayer, playerRotate] =
+    usePlayer();
   const [stage, setStage] = useStage(player);
 
   const movePlayer = (dir) => {
-    updatePlayerPos({ x: dir, y: 0 });
+    if (!checkCollision(player, stage, { x: dir, y: 0 }))
+      // if there is no collision then move as below
+      updatePlayerPos({ x: dir, y: 0 });
   };
   // x= dir because we are moving left or right refering to move, y= 0 because we are not moving up or down
 
@@ -34,13 +38,25 @@ const Tetris = () => {
     //reset everything
     setStage(createStage());
     resetPlayer();
+    setGameOver(false);
   };
 
   const drop = () => {
-    updatePlayerPos({ x: 0, y: 1, collided: false });
+    if (!checkCollision(player, stage, { x: 0, y: 1 })) {
+      updatePlayerPos({ x: 0, y: 1, collided: false });
+    } else {
+      // Game Over
+      if (player.pos.y < 1) {
+        console.log('GAME OVER!!!');
+        setGameOver(true);
+        setDropTime(null);
+      }
+    }
   };
   // as we drop we increase the y value of 1
-  const dropPlayer = () => {};
+  const dropPlayer = () => {
+    drop();
+  };
 
   const move = ({ keyCode }) => {
     if (!gameOver) {
@@ -50,11 +66,16 @@ const Tetris = () => {
         movePlayer(1);
       } else if (keyCode === 40) {
         dropPlayer();
+      } else if (keyCode === 38) {
+        playerRotate(stage, 1);
+      } else if (keyCode === 32) {
+        dropPlayer();
       }
     }
   };
 
   // 37 = left arrow (-1) because left is -1 on x axis , 39 = right arrow (1) because right is 1 on x axis, 40 = down arrow (1) because down is 1 on y axis
+  // 38 = up arrow (1) because up is 1 on y axis
 
   return (
     <StyledTetrisWrapper
@@ -76,8 +97,7 @@ const Tetris = () => {
               <Display text="Level" />
             </div>
           )}
-
-          <StartButton onClick={startGame} />
+          <StartButton callback={startGame} />
         </aside>
       </StyledTetris>
     </StyledTetrisWrapper>
