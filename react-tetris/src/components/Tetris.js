@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
+
 import { createStage } from '../gameHelpers';
+
+//styled components
 import {
   StyledTetrisWrapper,
   StyledTetris,
 } from './styles/StyledTetris';
+
+//Custom Hooks
+
+import { usePlayer } from '../hooks/usePlayer';
+import { useStage } from '../hooks/useStage';
 
 //components
 import Stage from './Stage';
@@ -11,17 +19,65 @@ import Display from './Display';
 import StartButton from './StartButton';
 
 const Tetris = () => {
+  const [dropTime, setDropTime] = useState(null);
+  const [gameOver, setGameOver] = useState(false);
+
+  const [player, updatePlayerPos, resetPlayer] = usePlayer();
+  const [stage, setStage] = useStage(player);
+
+  const movePlayer = (dir) => {
+    updatePlayerPos({ x: dir, y: 0 });
+  };
+  // x= dir because we are moving left or right refering to move, y= 0 because we are not moving up or down
+
+  const startGame = () => {
+    //reset everything
+    setStage(createStage());
+    resetPlayer();
+  };
+
+  const drop = () => {
+    updatePlayerPos({ x: 0, y: 1, collided: false });
+  };
+  // as we drop we increase the y value of 1
+  const dropPlayer = () => {};
+
+  const move = ({ keyCode }) => {
+    if (!gameOver) {
+      if (keyCode === 37) {
+        movePlayer(-1);
+      } else if (keyCode === 39) {
+        movePlayer(1);
+      } else if (keyCode === 40) {
+        dropPlayer();
+      }
+    }
+  };
+
+  // 37 = left arrow (-1) because left is -1 on x axis , 39 = right arrow (1) because right is 1 on x axis, 40 = down arrow (1) because down is 1 on y axis
+
   return (
-    <StyledTetrisWrapper>
+    <StyledTetrisWrapper
+      role="button"
+      tabIndex="0"
+      onKeyDown={(e) => move(e)}
+    >
+      {/* // if we didnt have wrapper, you would have to press on game screen for the key presses to work */}
+
       <StyledTetris>
-        <Stage stage={createStage()} />
+        <Stage stage={stage} />
         <aside>
-          <div>
-            <Display text="Score" />
-            <Display text="Rows" />
-            <Display text="Level" />
-          </div>
-          <StartButton />
+          {gameOver ? ( // if gameOver is true, display Game Over, else display score, rows, level
+            <Display gameOver={gameOver} text="Game Over" />
+          ) : (
+            <div>
+              <Display text="Score" />
+              <Display text="Rows" />
+              <Display text="Level" />
+            </div>
+          )}
+
+          <StartButton onClick={startGame} />
         </aside>
       </StyledTetris>
     </StyledTetrisWrapper>
