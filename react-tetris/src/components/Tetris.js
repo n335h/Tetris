@@ -25,7 +25,7 @@ const Tetris = () => {
 
   const [player, updatePlayerPos, resetPlayer, playerRotate] =
     usePlayer();
-  const [stage, setStage] = useStage(player);
+  const [stage, setStage] = useStage(player, resetPlayer);
 
   const movePlayer = (dir) => {
     if (!checkCollision(player, stage, { x: dir, y: 0 }))
@@ -51,6 +51,7 @@ const Tetris = () => {
         setGameOver(true);
         setDropTime(null);
       }
+      updatePlayerPos({ x: 0, y: 0, collided: true });
     }
   };
   // as we drop we increase the y value of 1
@@ -81,7 +82,7 @@ const Tetris = () => {
     <StyledTetrisWrapper
       role="button"
       tabIndex="0"
-      onKeyDown={(e) => move(e)}
+      onKeyDown={e => move(e)}
     >
       {/* // if we didnt have wrapper, you would have to press on game screen for the key presses to work */}
 
