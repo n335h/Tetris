@@ -10,3 +10,4 @@
   - Enhance data fetching: [React Query](https://tanstack.com/query/latest) helps you manage asynchronous data fetching, caching, and synchronization with ease.
 
 - Get inspired and start building: Find inspiration from curated project lists like [this one](https://hackr.io/blog/react-projects) or the [React developer roadmap](https://roadmap.sh/react) and start building your own React project in this repo to practice your skills and showcase your creativity.
+# Tetris
